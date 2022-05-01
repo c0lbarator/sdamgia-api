@@ -11,20 +11,20 @@ class SdamGIA:
     def __init__(self):
         self._BASE_DOMAIN = 'sdamgia.ru'
         self._SUBJECT_BASE_URL = {
-            'math': f'https://math-ege.{self._BASE_DOMAIN}', 'mathb': f'https://mathb-ege.{self._BASE_DOMAIN}',
-            'phys': f'https://phys-ege.{self._BASE_DOMAIN}',
-            'inf': f'https://inf-ege.{self._BASE_DOMAIN}',
-            'rus': f'https://rus-ege.{self._BASE_DOMAIN}',
-            'bio': f'https://bio-ege.{self._BASE_DOMAIN}',
-            'en': f'https://en-ege.{self._BASE_DOMAIN}',
-            'chem': f'https://chem-ege.{self._BASE_DOMAIN}',
-            'geo': f'https://geo-ege.{self._BASE_DOMAIN}',
-            'soc': f'https://soc-ege.{self._BASE_DOMAIN}',
-            'de': f'https://de-ege.{self._BASE_DOMAIN}',
-            'fr': f'https://fr-ege.{self._BASE_DOMAIN}',
-            'lit': f'https://lit-ege.{self._BASE_DOMAIN}',
-            'sp': f'https://sp-ege.{self._BASE_DOMAIN}',
-            'hist': f'https://hist-ege.{self._BASE_DOMAIN}',
+            'math': f'https://math-oge.{self._BASE_DOMAIN}',
+            'phys': f'https://phys-oge.{self._BASE_DOMAIN}',
+            'inf': f'https://inf-oge.{self._BASE_DOMAIN}',
+            'rus': f'https://rus-oge.{self._BASE_DOMAIN}',
+            'bio': f'https://bio-oge.{self._BASE_DOMAIN}',
+            'en': f'https://en-oge.{self._BASE_DOMAIN}',
+            'chem': f'https://chem-oge.{self._BASE_DOMAIN}',
+            'geo': f'https://geo-oge.{self._BASE_DOMAIN}',
+            'soc': f'https://soc-oge.{self._BASE_DOMAIN}',
+            'de': f'https://de-oge.{self._BASE_DOMAIN}',
+            'fr': f'https://fr-oge.{self._BASE_DOMAIN}',
+            'lit': f'https://lit-oge.{self._BASE_DOMAIN}',
+            'sp': f'https://sp-oge.{self._BASE_DOMAIN}',
+            'hist': f'https://hist-oge.{self._BASE_DOMAIN}',
         }
         self.tesseract_src = 'tesseract'
         self.html2img_chrome_path = 'chrome'
