@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 import threading
 from os import path, remove
-
+import json
 
 class SdamGIA:
     def __init__(self):
@@ -29,6 +29,33 @@ class SdamGIA:
         self.tesseract_src = 'tesseract'
         self.html2img_chrome_path = 'chrome'
         self.grabzit_auth = {'AppKey': 'grabzit', 'AppSecret': 'grabzit'}
+        self.session = requests.session()
+
+
+        def stringify(obj: dict) -> dict:
+            """turn every value in the dictionary to a string"""
+            for k, v in obj.items():
+                if isinstance(v, dict):
+                    # if value is a dictionary, stringifiy recursively
+                    stringify(v)
+                    continue
+                if not isinstance(v, str):
+                    if isinstance(v, bool):
+                        # False/True -> false/true
+                        obj[k] = str(v).lower()
+                    else:
+                        obj[k] = str(v)
+            return obj
+
+
+        with open("E:\cookies.json") as f:
+            cookie_list: list = json.load(f)
+            # create the cookie jar from the first cookie
+            cookie_jar = requests.utils.cookiejar_from_dict(stringify(cookie_list[0]))
+            # append the rest of the cookies
+            for cookie in cookie_list[1:]:
+                requests.utils.add_dict_to_cookiejar(cookie_jar, stringify(cookie))
+            self.session.cookies = cookie_jar
 
     def get_problem_by_id(self,
                           subject, id,
@@ -57,7 +84,7 @@ class SdamGIA:
         :type grabzit_auth: dict
         """
 
-        doujin_page = requests.get(
+        doujin_page = self.session.get(
             f'{self._SUBJECT_BASE_URL[subject]}/problem?id={id}')
         soup = BeautifulSoup(doujin_page.content, 'html.parser')
 
@@ -164,7 +191,7 @@ class SdamGIA:
         :param page: Номер страницы поиска
         :type page: int
         """
-        doujin_page = requests.get(
+        doujin_page = self.session.get(
             f'{self._SUBJECT_BASE_URL[subject]}/search?search={request}&page={str(page)}')
         soup = BeautifulSoup(doujin_page.content, 'html.parser')
         return [i.text.split()[-1] for i in soup.find_all('span', {'class': 'prob_nums'})]
@@ -179,7 +206,7 @@ class SdamGIA:
         :param testid: Идентификатор теста
         :type testid: str
         """
-        doujin_page = requests.get(
+        doujin_page = self.session.get(
             f'{self._SUBJECT_BASE_URL[subject]}/test?id={testid}')
         soup = BeautifulSoup(doujin_page.content, 'html.parser')
         return [i.text.split()[-1] for i in soup.find_all('span', {'class': 'prob_nums'})]
@@ -198,7 +225,7 @@ class SdamGIA:
         :type page: int
         """
 
-        doujin_page = requests.get(
+        doujin_page = self.session.get(
             f'{self._SUBJECT_BASE_URL[subject]}/test?&filter=all&theme={categoryid}&page={page}')
         soup = BeautifulSoup(doujin_page.content, 'html.parser')
         return [i.text.split()[-1] for i in soup.find_all('span', {'class': 'prob_nums'})]
@@ -211,7 +238,7 @@ class SdamGIA:
         :type subject: str
         """
 
-        doujin_page = requests.get(
+        doujin_page = self.session.get(
             f'{self._SUBJECT_BASE_URL[subject]}/prob_catalog')
         soup = BeautifulSoup(doujin_page.content, 'html.parser')
         catalog = []
@@ -273,7 +300,7 @@ class SdamGIA:
         else:
             dif = {f'prob{i}': problems[i] for i in problems}
 
-        return requests.get(f'{self._SUBJECT_BASE_URL[subject]}/test?a=generate', dif,
+        return self.session.get(f'{self._SUBJECT_BASE_URL[subject]}/test?a=generate', dif,
                             allow_redirects=False).headers['location'].split('id=')[1].split('&nt')[0]
 
     def generate_pdf(self, subject, testid, solution='', nums='',
@@ -323,7 +350,7 @@ class SdamGIA:
                 return ''
             return a
 
-        return self._SUBJECT_BASE_URL[subject] + requests.get(f'{self._SUBJECT_BASE_URL[subject]}/test?'
+        return self._SUBJECT_BASE_URL[subject] + self.session.get(f'{self._SUBJECT_BASE_URL[subject]}/test?'
                                                               f'id={testid}&print=true&pdf={pdf}&sol={a(solution)}&num={a(nums)}&ans={a(answers)}'
                                                               f'&key={a(key)}&crit={a(crit)}&pre={a(instruction)}&dcol={a(col)}',
                                                               allow_redirects=False).headers['location']
@@ -347,7 +374,7 @@ class SdamGIA:
                 request_phrase = ' '.join(
                     [words_from_img[x] for x in range(i, i + 10)])
 
-                doujin_page = requests.get(
+                doujin_page = self.session.get(
                     f'{self._SUBJECT_BASE_URL[subject]}/search?search={request_phrase}&page={str(1)}')
                 soup = BeautifulSoup(doujin_page.content, 'html.parser')
                 problem_ids = [i.text.split()[-1]
